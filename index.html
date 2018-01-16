@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="styles.css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700,300&amp;subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+</head>
+<body>
+
+    <div id='content'>
+
+        <div class='header'>
+            <h1>Google Apps Script - <span style="font-weight:400">Sync Tool</span></h1>
+        </div>    
+        <form id="form">
+            <h3>Folder Name</h3>
+            <h5 class='spacedLetters'>(MAMP/htdocs/GAS/...)</h5>
+            <input id="folderName" class="wide" type="text" name="folderName">
+            <br><br>
+
+            <h3>Push - Pull</h3>
+            <h5>(overwrite destination)</h5>
+            <select id='type' name='type'>
+                <option value='push'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH &rarr;
+                <option value='pull'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&larr; PULL   
+            </select>
+            <br><br>
+            
+            <br>
+            <button id='submitBtn' class='button' >Start</button>
+
+            
+        </form>
+    </div>
+
+    <div id="mask"></div>
+
+    <div id="warning" title="Warning" style="display:none">  
+        <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>All Local files with a ".js" or ".html" extension will be permanently deleted and cannot be recovered. Are you sure?</p>
+    </div>
+
+    <div id="copying" title="Copy Files" style="text-align:center;display:none">
+        <p>copying...<p>
+    </div>
+
+    <div id="notice" title="Notice" style="text-align:center;display:none">
+        <p>Enter a folder name<p>
+    </div>
+
+    <div id="error" title="Error">
+        <p>
+            <!-- <span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span> -->
+            <span id="errorMessage"></span>
+        </p>
+    </div>
+
+</body>
+</html>
+  
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+<script>
+    
+    $(document).ready(function(){
+
+        var $copying=$('#copying'),$error=$('#error'),$warning=$('#warning'),$notice=$('#notice'),$mask=$('#mask');
+
+        $error.dialog({
+            autoOpen:false,
+            dialogClass: "no-close",
+            width: 400,
+            modal: true,
+            buttons: {
+                Ok: function() {
+                    $(this).dialog( "close" );
+                    $mask.removeClass('mask-on');
+                }
+            }
+        });
+
+        $warning.dialog({
+            autoOpen:false,
+            dialogClass: "no-close",
+            resizable: false,
+            height: "auto",
+            width: 500,
+            modal: true,
+            buttons: {
+                "Yes": function() {
+                    $(this).dialog( "close" );
+                    $copying.dialog("open");
+                    submitForm();
+                },
+                Cancel: function() {
+                    $(this).dialog( "close" );
+                    $mask.removeClass('mask-on');
+                }
+            }
+        });
+
+        $copying.dialog({    
+            autoOpen:false,
+            dialogClass: "no-close",
+            resizable: false,
+            height: "auto",
+            width: 400,
+            modal: true,
+        });
+
+        $notice.dialog({
+            autoOpen:false,
+            dialogClass: "no-close",
+            modal: true,
+            buttons: {
+                Ok: function() {
+                    $(this).dialog( "close" );
+                    $mask.removeClass('mask-on');
+                }
+            }
+        });
+
+        $('#submitBtn').click(function(e) {
+            e.preventDefault();
+            if (!$('#folderName').val()) {
+                $notice.dialog("open");
+                $mask.addClass("mask-on");
+                return;
+            }
+
+            $mask.addClass('mask-on');
+            $copying.dialog("open");
+            submitForm();
+        });
+
+
+        function submitForm() {
+            $.ajax({
+                type: "GET",
+                url: "sync.php",
+                data: $('#form').serialize(),
+                dataType: "json",
+                success: function(data) {
+                    if (data.success) {
+                        $mask.removeClass('mask-on');
+                        $copying.dialog("close");
+                    } else if (data.error) {
+                        $copying.dialog("close");
+                        $('#errorMessage').html(data.error);
+                        $error.dialog("open");
+                    }
+                }
+            });
+        }
+
+    });
+
+</script>
