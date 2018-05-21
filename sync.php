@@ -11,31 +11,39 @@ if (isset($argc) && $argc > 1) parse_str(implode('&',array_slice($argv, 1)), $_G
 if (isset($_GET['type']) && $_GET['type']) $type = $_GET['type'];
 else $type = '';
 
+if (isset($_GET['filePrefix']) && $_GET['filePrefix']) $filePrefix = $_GET['filePrefix'];
+else $filePrefix = '';
+
 if (isset($_GET['folderName']) && $_GET['folderName']) $localFolderPath = '../' . $_GET['folderName'];
 else $localFolderPath = '';
+
+// for use when an alternate scriptId is specified, e.g. upload Magic Viewer files to the Magic HOA script
+if (isset($_GET['scriptId']) && $_GET['scriptId']) $scriptId = $_GET['scriptId'];
+else {
+	// get scriptId
+	$manifestPath = $localFolderPath . "/manifest.json";
+	if (!file_exists($manifestPath)) {
+		$data['error'] = 'Could not find "manifest.json" in the "'.  $_GET['folderName']  . '" folder.' ;
+		echo json_encode($data);
+		exit();
+	}
+	$manifestJson = json_decode(file_get_contents($manifestPath),true);
+	if (!array_key_exists('scriptId',$manifestJson)) {
+		$data['error'] = 'Could not find "scriptId" in the "manifest.json" file';
+		echo json_encode($data);
+		exit();
+	} else {
+		$scriptId = $manifestJson['scriptId'];
+	}
+}
 
 // check for valid folder path
 if (!is_dir($localFolderPath)) {
 	$data['error'] = 'Could not find a folder named "' . $_GET['folderName'] . '"';
 	echo json_encode($data);
-	exit(); 
+	exit();
 }
 
-// get scriptId
-$manifestPath = $localFolderPath . "/manifest.json";
-if (!file_exists($manifestPath)) {
-	$data['error'] = 'Could not find "manifest.json" in the "'.  $_GET['folderName']  . '" folder.' ;
-	echo json_encode($data);
-	exit();
-}
-$manifestJson = json_decode(file_get_contents($manifestPath),true);
-if (!array_key_exists('scriptId',$manifestJson)) {
-	$data['error'] = 'Could not find "scriptId" in the "manifest.json" file';
-	echo json_encode($data);
-	exit();
-} else {
-	$scriptId = $manifestJson['scriptId'];
-} 
 
 require_once ('vendor/autoload.php');
 putenv('GOOGLE_APPLICATION_CREDENTIALS=paperless-office-service-acct.json');
@@ -50,15 +58,15 @@ $client->setSubject('lpadan@paperlessofficepro.com');
 $service = new Google_Service_Script($client);
 
 switch ($type) {
-	
+
 	case 'push':
-		push($scriptId, $service, $localFolderPath);
+		push($scriptId, $service, $localFolderPath,$filePrefix);
 		break;
 
 	case 'pull':
 		pull($scriptId, $service, $localFolderPath);
-		break;	
-	
+		break;
+
 	default:
 		$result['success'] = false;
 		$result['error'] = "Invalid Type or Type not specified\n";
@@ -89,8 +97,8 @@ function getServerFiles($scriptId,$service) {
 
 function pull($scriptId,$service,$localFolderPath) {
 
-	$serverFiles = getServerFiles($scriptId,$service); 
-	// delete files from the $localFolderPath 
+	$serverFiles = getServerFiles($scriptId,$service);
+	// delete files from the $localFolderPath
 	$files = glob($localFolderPath . '/*'); // ignore hidden files, includes folders
 	foreach($files as $file){
 	    if(is_file($file)){
@@ -103,7 +111,7 @@ function pull($scriptId,$service,$localFolderPath) {
 	for ($i = 0; $i < sizeof($serverFiles); $i++) {
 		if ($serverFiles[$i]['type'] === 'SERVER_JS') {
 			$newFilePath = $localFolderPath . "/" . $serverFiles[$i]['name'] . ".gs";
-		} elseif ($serverFiles[$i]['type'] === 'HTML') { 
+		} elseif ($serverFiles[$i]['type'] === 'HTML') {
 			$newFilePath = $localFolderPath . "/" . $serverFiles[$i]['name'] . ".html";
 		} elseif ($serverFiles[$i]['name'] === 'appsscript') {
 			$newFilePath = $localFolderPath . "/" . $serverFiles[$i]['name'] . ".json";
@@ -114,20 +122,24 @@ function pull($scriptId,$service,$localFolderPath) {
 	}
 	$result['success'] = true;
 	echo json_encode($result);
-
 }
 
-function push($scriptId,$service,$localFolderPath) {
+function push($scriptId,$service,$localFolderPath,$filePrefix) {
+
 	// NOTE:  files on the server that do not have the same named file locally will be deleted
-	// this functionality could be changed so as not to delete unmatched server files, but the idea is to have two identical copies
-	
-	$serverFiles = getServerFiles($scriptId,$service); 
+	// unless you specify an "Excluded File Prefix", in which case files with the prefix will not be overwritten
+	// this funcitonality is to allow Magic HOA to be updated with the Magic Viewer files, without overwriting the HOA files
+	// HOA files are prefixed with 'hoa'
+
+
+	$serverFiles = getServerFiles($scriptId,$service);
 	for ($i = 0; $i < sizeof($serverFiles); $i++) {
 		if ($serverFiles[$i]['name'] === 'appsscript') {
 			$manifestContent = $serverFiles[$i]['source'];
 			break;
 		}
 	}
+
 
 	$localFileNames = glob($localFolderPath . '/*'); // ignores hidden files, does return folders
 	$localFiles = [];
@@ -148,13 +160,33 @@ function push($scriptId,$service,$localFolderPath) {
  		$localFiles[] = $localFile;
 	}
 
+
+	// add files from server to local files array if an excluded filePrefix is specified
+	// all files on the server are deleted, but the preFixed files are first downloaded and saved to $localFiles[]
+	if ($filePrefix) {
+		for ($i = 0; $i < sizeof($serverFiles); $i++) {
+			if (strpos($serverFiles[$i]['name'],$filePrefix) === 0) {
+				if ($serverFiles[$i]['type'] === 'SERVER_JS') {
+					$type = 'SERVER_JS';
+				} elseif ($serverFiles[$i]['type'] === 'HTML') {
+					$type = 'HTML';
+				}
+				$content = $serverFiles[$i]['source'];
+				$serverFile = new Google_Service_Script_ScriptFile();
+				$serverFile -> setName($serverFiles[$i]['name']);
+				$serverFile -> setType($type);
+				$serverFile -> setSource($content);
+		 		$localFiles[] = $serverFile;
+			}
+		}
+	}
+
+
 	$manifestFile = new Google_Service_Script_ScriptFile();
 	$manifestFile->setName('appsscript');
 	$manifestFile->setType('JSON');
 	$manifestFile->setSource($manifestContent);
 	$localFiles[] = $manifestFile;
-
-
 
 	$request = new Google_Service_Script_Content($scriptId);
   	$request->setFiles($localFiles);

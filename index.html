@@ -5,37 +5,49 @@
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700,300&amp;subset=latin,latin-ext' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
 </head>
+
 <body>
 
     <div id='content'>
 
         <div class='header'>
             <h1>Google Apps Script - <span style="font-weight:400">Sync Tool</span></h1>
-        </div>    
+        </div>
         <form id="form">
             <h3>Folder Name</h3>
             <h5 class='spacedLetters'>(MAMP/htdocs/GAS/...)</h5>
             <input id="folderName" class="wide" type="text" name="folderName">
-            <br><br>
+            <br>
 
             <h3>Sync Direction</h3>
             <h5>(overwrite destination)</h5>
             <select id='type' name='type'>
                 <option value='push'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOCAL &rarr; Google
-                <option value='pull'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOOGLE &rarr; Local  
+                <option value='pull'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOOGLE &rarr; Local
             </select>
-            <br><br>
-            
             <br>
+
+            <h3>Destination Script ID</h3>
+            <h5>(optional)</h5>
+            <input type="text" class="wide" name="scriptId">
+            <br>
+
+            <h3>Excluded File Prefix</h3>
+            <h5>(do not overwrite these files)</h5>
+            <input type="text" class="wide" name="filePrefix">
+            <br><br>
+
+
+
             <button id='submitBtn' class='button' >Start</button>
 
-            
+
         </form>
     </div>
 
     <div id="mask"></div>
 
-    <div id="warning" title="Warning" style="display:none">  
+    <div id="warning" title="Warning" style="display:none">
         <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>All Local files with a ".js" or ".html" extension will be permanently deleted and cannot be recovered. Are you sure?</p>
     </div>
 
@@ -56,12 +68,12 @@
 
 </body>
 </html>
-  
+
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 
 <script>
-    
+
     $(document).ready(function(){
 
         var $copying=$('#copying'),$error=$('#error'),$warning=$('#warning'),$notice=$('#notice'),$mask=$('#mask');
@@ -99,7 +111,7 @@
             }
         });
 
-        $copying.dialog({    
+        $copying.dialog({
             autoOpen:false,
             dialogClass: "no-close",
             resizable: false,

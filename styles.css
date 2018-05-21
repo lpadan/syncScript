@@ -21,9 +21,10 @@ body {
 
 #content {
 	margin-top:100px;
-	height:600px;
+	/*height:600px;*/
 	background-color: white;
 	text-align: center;
+	padding-bottom:20px;
 }
 
 .header {
@@ -95,7 +96,7 @@ h5 {
 	opacity: 0;
 	transition: opacity 0.3s, width 0s 0.3s, height 0s 0.3s;
 }
-  
+
 #mask.mask-on {
 	width: 100%;
 	height: 100%;
@@ -107,16 +108,18 @@ h5 {
   	display: none;
 }
 
-.spacedLetters {
-	letter-spacing:.8px;
-}
-
 option {
 	text-align: center;
 }
 
 select {
-	height:40px;
-	width:250px;
-	font-size:18px;
+    width:250px;
+    height:30px;
+    background-color:white;
+    font-size:1.0em;
+    -webkit-appearance: menulist-button; /* allows setting of height in Safari */
+}
+
+.spacedLetters {
+	letter-spacing:.8px;
 }
