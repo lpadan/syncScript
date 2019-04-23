@@ -2,7 +2,8 @@
 /**
  * Currently using a service account for paperlessofficepro.com
  * uses the Google Apps Script API to push and pull from stand alone and container bound scripts
- * * each local folder must contain a manifest.json file that contains a 'scriptId' key
+ * using the Goolgle Apps Script API PHP library, which is why this file is written in PHP
+ * each local folder must contain a manifest.json file that contains a 'scriptId' key
 */
 
 // retrieve arguments from cli and put in $_GET, otherwise $_GET populated by web form
@@ -131,7 +132,6 @@ function push($scriptId,$service,$localFolderPath,$filePrefix) {
 	// this funcitonality is to allow Magic HOA to be updated with the Magic Viewer files, without overwriting the HOA files
 	// HOA files are prefixed with 'hoa'
 
-
 	$serverFiles = getServerFiles($scriptId,$service);
 	for ($i = 0; $i < sizeof($serverFiles); $i++) {
 		if ($serverFiles[$i]['name'] === 'appsscript') {
@@ -139,7 +139,6 @@ function push($scriptId,$service,$localFolderPath,$filePrefix) {
 			break;
 		}
 	}
-
 
 	$localFileNames = glob($localFolderPath . '/*'); // ignores hidden files, does return folders
 	$localFiles = [];
@@ -160,9 +159,8 @@ function push($scriptId,$service,$localFolderPath,$filePrefix) {
  		$localFiles[] = $localFile;
 	}
 
-
 	// add files from server to local files array if an excluded filePrefix is specified
-	// all files on the server are deleted, but the preFixed files are first downloaded and saved to $localFiles[]
+	// all files on the server are deleted, but the preFixed files are first downloaded and saved to $localFiles, and then uploaded
 	if ($filePrefix) {
 		for ($i = 0; $i < sizeof($serverFiles); $i++) {
 			if (strpos($serverFiles[$i]['name'],$filePrefix) === 0) {
@@ -180,7 +178,6 @@ function push($scriptId,$service,$localFolderPath,$filePrefix) {
 			}
 		}
 	}
-
 
 	$manifestFile = new Google_Service_Script_ScriptFile();
 	$manifestFile->setName('appsscript');
