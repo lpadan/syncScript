@@ -38,6 +38,7 @@ else {
 	}
 }
 
+
 // check for valid folder path
 if (!is_dir($localFolderPath)) {
 	$data['error'] = 'Could not find a folder named "' . $_GET['folderName'] . '"';
@@ -47,7 +48,8 @@ if (!is_dir($localFolderPath)) {
 
 
 require_once ('vendor/autoload.php');
-putenv('GOOGLE_APPLICATION_CREDENTIALS=paperless-office-service-acct.json');
+// putenv('GOOGLE_APPLICATION_CREDENTIALS=paperless-office-service-acct.json');
+putenv('GOOGLE_APPLICATION_CREDENTIALS=aspen-group-google-client.json');
 define('SCOPES', implode(' ', array(
   "https://www.googleapis.com/auth/script.projects")
 ));
@@ -55,7 +57,10 @@ define('SCOPES', implode(' ', array(
 $client = new Google_Client();
 $client->setScopes(SCOPES); // accepts an array of scopes
 $client->useApplicationDefaultCredentials();
-$client->setSubject('lpadan@paperlessofficepro.com');
+
+//$client->setSubject('lpadan@paperlessofficepro.com');
+$client->setSubject('lpadan@aspengroupusa.com');
+
 $service = new Google_Service_Script($client);
 
 switch ($type) {
@@ -80,7 +85,11 @@ function getServerFiles($scriptId,$service) {
 		$response = $service->projects->getContent($scriptId);
 	} catch (Exception $e) {
 		$temp = json_decode($e->getMessage(),true);
-		$message = $temp['error']['message'];
+
+		// this no longer works
+		//$message = $temp['error']['message'];
+		$message = $temp['error_description'];
+
 		$pos = strpos($message,'File not found:');
 		if ($pos === false) {
 			$result['error'] = $message;
