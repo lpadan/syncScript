@@ -1,10 +1,14 @@
 <?php
 /**
- * Currently using a service account for paperlessofficepro.com
+ * Currently using a service account for paperlessofficepro.com or aspengroupUSA.com
  * uses the Google Apps Script API to push and pull from stand alone and container bound scripts
  * using the Goolgle Apps Script API PHP library, which is why this file is written in PHP
  * each local folder must contain a manifest.json file that contains a 'scriptId' key
 */
+
+
+// NOTE: Am currently using this file to push to Paperless Builder add-ons AND Aspen Group add-ons
+// switch the commented code below (lines 54 and 64) to push to an Aspen Group account add-on.
 
 // retrieve arguments from cli and put in $_GET, otherwise $_GET populated by web form
 if (isset($argc) && $argc > 1) parse_str(implode('&',array_slice($argv, 1)), $_GET);
@@ -38,7 +42,6 @@ else {
 	}
 }
 
-
 // check for valid folder path
 if (!is_dir($localFolderPath)) {
 	$data['error'] = 'Could not find a folder named "' . $_GET['folderName'] . '"';
@@ -46,9 +49,8 @@ if (!is_dir($localFolderPath)) {
 	exit();
 }
 
-
 require_once ('vendor/autoload.php');
-// putenv('GOOGLE_APPLICATION_CREDENTIALS=paperless-office-service-acct.json');
+//putenv('GOOGLE_APPLICATION_CREDENTIALS=paperless-office-service-acct.json');
 putenv('GOOGLE_APPLICATION_CREDENTIALS=aspen-group-google-client.json');
 define('SCOPES', implode(' ', array(
   "https://www.googleapis.com/auth/script.projects")
