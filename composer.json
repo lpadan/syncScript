@@ -6,6 +6,6 @@
         "post-update-cmd": "Google_Task_Composer::cleanup"
     },
     "extra": {
-        "google/apiclient-services": ["Drive","Script"]
+        "google/apiclient-services": ["Script"]
     }
 }
