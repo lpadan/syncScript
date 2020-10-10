@@ -11,13 +11,10 @@ Destination Local files with a .gs, .js or .html extension are overwritten. All 
 
 This app works with **stand-alone** sripts and **container-bound** scripts.
 
-Local folders that are to be syncronized with a Google Script, may utilize a manifest.json file in the root of the local folder that
-contains the 'scriptId' that the script is to be syncronized with.
+Local folders may include a manifest.json file in their root, that contains the script ID for the script the folder is to be syncronized with:
 
-`{
-	"scriptId":"19hP7JINrr85jQs-hSjhbMPmyniXadDqrwKKfl7PJEjbkyJhFJ0UKi_IS"
-}`
+`{"scriptId":"19hP7JINrr85jQs-hSjhbMPmyniXadDqrwKKfl7PJEjbkyJhFJ0UKi_IS"}`
 
-Otherwise, enter the Script ID into the **_Destination Script ID_** box.
+Otherwise, enter the script ID into the **_Destination Script ID_** box.
 
 The script ID may be found by opening the script in the google script editor, then **_file > Project properties > info tab_**.
