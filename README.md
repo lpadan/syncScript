@@ -4,9 +4,20 @@ This app synchronizes a Google Apps Script project in Google Drive, with a local
 Copy files from **Local &rarr; Google Drive** or **Google Drive &rarr; Local**. 
 
 Destination Google Drive files with a .gs or .html extension are overwritten.  
-Destination Local files with a .gs/.js or .html extension are overwritten. All other files & folders remain unchanged.
+Destination Local files with a .gs, .js or .html extension are overwritten. All other files & folders remain unchanged.
 
 * Requires the [Google APIs Client Libary for PHP](https://github.com/google/google-api-php-client)  
 * Requires a [Google Service account](https://support.google.com/a/answer/7378726?hl=en)  
 
-Note:  *This app only works with **stand-alone** sripts.  The Google Drive API does not support import/export from container-bound scripts.*
+This app works with **stand-alone** sripts and **container-bound** scripts.
+
+Local folders that are to be syncronized with a Google Script, may utilize a manifest.json file in the root of the local folder that
+contains the 'scriptId' that the script is to be syncronized with.
+
+`{
+	"scriptId":"19hP7JINrr85jQs-hSjhbMPmyniXadDqrwKKfl7PJEjbkyJhFJ0UKi_IS"
+}`
+
+Otherwise, enter the Script ID into the **_Destination Script ID_** box.
+
+The script ID may be found by opening the script in the google script editor, then **_file > Project properties > info tab_**.

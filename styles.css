@@ -7,7 +7,7 @@ body {
 }
 
 .button {
-	background-color: mediumpurple;
+	background-color: #4285f4;
 	border: none;
 	color: white;
 	padding: 12px 32px;
@@ -28,7 +28,7 @@ body {
 }
 
 .header {
-	background-color:mediumpurple;
+	background-color:#4285f4;
 	color:white;
 	padding:10px;
 	margin:0;
