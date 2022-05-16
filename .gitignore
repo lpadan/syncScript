@@ -2,3 +2,5 @@ vendor/
 paperless-office-service-acct.json
 aspen-group-google-client.json
 .DS_Store
+*.sublime-workspace
+*.sublime-project
