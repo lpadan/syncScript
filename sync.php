@@ -8,7 +8,7 @@
 
 
 // NOTE: Am currently using this file to push to Paperless Builder add-ons AND Aspen Group add-ons
-// switch the commented code below (lines 54 and 64) to push to an Aspen Group account add-on.
+// switch the commented code below (lines 54 and 64) to push to different Google accounts
 
 // retrieve arguments from cli and put in $_GET, otherwise $_GET populated by web form
 if (isset($argc) && $argc > 1) parse_str(implode('&',array_slice($argv, 1)), $_GET);
@@ -50,8 +50,10 @@ if (!is_dir($localFolderPath)) {
 }
 
 require_once ('vendor/autoload.php');
+
 //putenv('GOOGLE_APPLICATION_CREDENTIALS=paperless-office-service-acct.json');
 putenv('GOOGLE_APPLICATION_CREDENTIALS=aspen-group-google-client.json');
+
 define('SCOPES', implode(' ', array(
   "https://www.googleapis.com/auth/script.projects")
 ));
